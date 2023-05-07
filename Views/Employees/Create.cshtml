@@ -1,0 +1,95 @@
+﻿@model TSAIdentity.Models.Employee
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Employee</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="EmployeeName" class="control-label"></label>
+                <input asp-for="EmployeeName" class="form-control" />
+                <span asp-validation-for="EmployeeName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeeContact" class="control-label"></label>
+                <input asp-for="EmployeeContact" class="form-control" />
+                <span asp-validation-for="EmployeeContact" class="text-danger"></span>
+            </div>
+            <input type="hidden" value="@ViewData["OrganizationName"]" id="OrganizationName"/>
+            <div class="form-group">
+                <label asp-for="EmployeeEmail" class="control-label"></label>
+                <input class="form-control" id="EmployeeEmailInput" />
+                <input asp-for="EmployeeEmail" class="form-control" id="EmployeeEmailDisplay" readonly/>
+                <span asp-validation-for="EmployeeEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="EmployeePassword" class="control-label"></label>
+                <input asp-for="EmployeePassword" class="form-control" />
+                <span asp-validation-for="EmployeePassword" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="control-label"></label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="SkillIds" class="control-label"></label>
+                <select asp-for="SkillIds" class="form-control" asp-items="ViewBag.SkillId" id="Skill" multiple></select>
+                <span asp-validation-for="SkillIds" class="text-danger"></span>
+            </div>
+            
+            <div class="form-group">
+                <label asp-for="DesignationId" class="control-label"></label>
+                <select asp-for="DesignationId" class ="form-control" asp-items="ViewBag.DesignationId"></select>
+            </div>
+            <input type="hidden" asp-for="OrganizationId" value="@ViewData["OrganizationId"]" />
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+
+            //set the value in the dropdownlist.
+            $("#Skill").select2({
+                multiple: true,
+            });
+            $('#Skill').val(selectedmembers).trigger('change');
+        });
+    </script>
+    
+    <script>
+        // get references to the input and display elements
+        const emailInput = document.getElementById("EmployeeEmailInput");
+        const emailDisplay = document.getElementById("EmployeeEmailDisplay");
+        const organizationName = document.getElementById("OrganizationName");
+
+        // add an event listener to the input element to update the display
+        emailInput.addEventListener("input", function () {
+            const emailinput = emailInput.value.toLowerCase();
+            // concatenate the input value with the domain and update the display
+            emailDisplay.value = emailinput+ "@@" + organizationName.value + ".com";
+        });
+    </script>
+
+}

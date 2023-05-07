@@ -1,0 +1,60 @@
+﻿@model TSAIdentity.Models.Organization
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Organization</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="OrganizationName" class="control-label" ></label>
+                <input asp-for="OrganizationName" class="form-control" id="OrganizationName" />
+                <span asp-validation-for="OrganizationName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OrganizationEmail" class="control-label" ></label>
+                <input asp-for="OrganizationEmail" class="form-control" id="OrganizationEmail" readonly />
+                <span asp-validation-for="OrganizationEmail" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="OrganizationPassword" class="control-label"></label>
+                <input asp-for="OrganizationPassword" class="form-control" />
+                <span asp-validation-for="OrganizationPassword" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="ConfirmPassword" class="control-label"></label>
+                <input asp-for="ConfirmPassword" class="form-control" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // get references to the input fields
+        const organizationNameInput = document.getElementById("OrganizationName");
+        const organizationEmailInput = document.getElementById("OrganizationEmail");
+
+        // add an event listener to the EmployeeName input field
+        organizationNameInput.addEventListener("input", function () {
+            // get the value of the EmployeeName input field
+            const organizationName = organizationNameInput.value.replace(/\s/g, '').toLowerCase();
+
+            // set the value of the EmployeeEmail input field
+            organizationEmailInput.value = organizationName + "@@" + organizationName + ".com";
+        });
+    </script>
+}

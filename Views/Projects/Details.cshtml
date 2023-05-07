@@ -1,0 +1,113 @@
+﻿@model TSAIdentity.ViewModels.ProjectTaskViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Project</h4>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Project.ProjectName)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Project.ProjectName)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Project.ProjectDescription)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Project.ProjectDescription)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Project.ProjectDeadline)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Project.ProjectDeadline)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Project.ProjectStatus)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Project.ProjectStatus)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Project.Organization)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Project.Organization.OrganizationName)
+        </dd>
+    </dl>
+</div>
+<div>
+    @if (Model.Project.ProjectStatus.ToString() == "Pending")
+    {
+        <a asp-action="Edit" asp-route-id="@Model?.Project.ProjectId">Edit</a>
+
+        @: |
+    }
+    <a asp-action="Index">Back to List</a>
+</div>
+<hr />
+
+<p>
+    <a asp-controller="Tasks" asp-action="Create" asp-route-id="@Model.Project.ProjectId">Add New Task</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Tasks.FirstOrDefault().TaskName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tasks.FirstOrDefault().TaskStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tasks.FirstOrDefault().isassigned)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tasks.FirstOrDefault().Skill)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tasks.FirstOrDefault().AssignedEmployee)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Tasks)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TaskName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TaskStatus)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.isassigned)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Skill.SkillName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AssignedEmployee.EmployeeName)
+                </td>
+                <td>
+                    @if (!item.isassigned)
+                    {
+                        <a asp-controller="Tasks" asp-action="Edit" asp-route-id="@item.TaskId">Edit</a>@: |
+                        <a asp-controller="Tasks" asp-action="Delete" asp-route-id="@item.TaskId">Delete</a> @: |
+                        <a asp-controller="Tasks" asp-action="AssignTask" asp-route-id="@item.TaskId">Assign</a> @: |
+                    }
+                    <a asp-controller="Tasks" asp-action="Details" asp-route-id="@item.TaskId">Details</a>
+                    
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

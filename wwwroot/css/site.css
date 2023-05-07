@@ -1,0 +1,49 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+.container {
+    position: relative;
+}
+
+    .container .signupbtn {
+        position: absolute;
+        top: 85%;
+        left: 50%;
+        width: 25vw;
+        transform: translate(-50%, -50%);
+        background-color: rgba(228,41,0,0.70);
+        color: white;
+        font-size: 16px;
+        padding: 15px 30px;
+        border: none;
+        cursor: pointer;
+        border-radius: 20px;
+        text-align: center;
+    }
+
+    .container img {
+        max-height: 81vh;
+    }
+
+    .container .signupbtn:hover {
+        background-color: rgb(228,41,0);
+    }
