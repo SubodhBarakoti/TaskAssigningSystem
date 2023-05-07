@@ -84,7 +84,12 @@ namespace TSAIdentity.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("ProjectId,ProjectName,ProjectDescription,ProjectDeadline,OrganizationId")] Project project)
         {
-            bool projectExists = await _context.Projects.AnyAsync(p => p.ProjectName == project.ProjectName);
+            var userEmail = HttpContext.User.Identity.Name;
+            var organizationId = await _context.Organizations
+                          .Where(o => o.OrganizationEmail == userEmail)
+                          .Select(o => o.OrganizationId)
+                          .FirstOrDefaultAsync();
+            bool projectExists = await _context.Projects.AnyAsync(p => p.ProjectName == project.ProjectName && p.OrganizationId== organizationId);
 
             if (projectExists)
             {

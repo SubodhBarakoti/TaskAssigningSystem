@@ -55,7 +55,7 @@ namespace TSAIdentity.Controllers
             var project = await _context.Projects.FindAsync(id);    
             ViewData["OrganizationId"] = project.OrganizationId;
             ViewData["ProjectId"] = id;
-            ViewData["SkillId"] = new SelectList(_context.Skills, "SkillId", "SkillName");
+            ViewData["SkillId"] = new SelectList(_context.Skills.Where(e=>e.OrganizationId==project.OrganizationId), "SkillId", "SkillName");
             return View();
         }
 
@@ -80,7 +80,7 @@ namespace TSAIdentity.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction("Details","Projects", new { id = tasks.ProjectId });
             }
-            ViewData["SkillId"] = new SelectList(_context.Skills, "SkillId", "SkillName", tasks.SkillId);
+            ViewData["SkillId"] = new SelectList(_context.Skills.Where(e => e.OrganizationId == tasks.OrganizationId), "SkillId", "SkillName", tasks.SkillId);
             return View(tasks);
         }
 
@@ -98,7 +98,7 @@ namespace TSAIdentity.Controllers
                 return NotFound();
             }
             
-            ViewData["SkillId"] = new SelectList(_context.Skills, "SkillId", "SkillName", tasks.SkillId);
+            ViewData["SkillId"] = new SelectList(_context.Skills.Where(e => e.OrganizationId == tasks.OrganizationId), "SkillId", "SkillName", tasks.SkillId);
             return View(tasks);
         }
 
@@ -141,7 +141,7 @@ namespace TSAIdentity.Controllers
                 }
                 return RedirectToAction("Details", "Projects", new { id = tasks.ProjectId });
             }
-            ViewData["SkillId"] = new SelectList(_context.Skills, "SkillId", "SkillName", tasks.SkillId);
+            ViewData["SkillId"] = new SelectList(_context.Skills.Where(e => e.OrganizationId == tasks.OrganizationId), "SkillId", "SkillName", tasks.SkillId);
             return View(tasks);
         }
 
@@ -227,6 +227,12 @@ namespace TSAIdentity.Controllers
                 task.AssignedEmployeeId = viewModel.SelectedEmployeeId;
                 task.isassigned = true;
                 _context.Update(task);
+                
+
+                var employee = await _context.Employees.FindAsync(viewModel.SelectedEmployeeId);
+                employee.IsBusy = true;
+                _context.Update(employee);
+
                 await _context.SaveChangesAsync();
 
                 return RedirectToAction("Details","Projects", new { id = task.ProjectId });
