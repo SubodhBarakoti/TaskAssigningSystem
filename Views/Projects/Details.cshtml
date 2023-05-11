@@ -52,7 +52,8 @@
     <a asp-action="Index">Back to List</a>
 </div>
 <hr />
-
+    <a asp-action="UseAlgorithm" asp-route-id="@Model.Project.ProjectId">Use Algorithm</a>
+<hr/>
 <p>
     <a asp-controller="Tasks" asp-action="Create" asp-route-id="@Model.Project.ProjectId">Add New Task</a>
 </p>

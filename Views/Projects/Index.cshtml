@@ -21,9 +21,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.ProjectStatus)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Organization)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -31,16 +28,13 @@
 @foreach (var item in Model) {
         <tr>
             <td>
-                @Html.DisplayFor(modelItem => item.ProjectName)
+                    <a asp-action="Details" asp-route-id="@item.ProjectId">@Html.DisplayFor(modelItem => item.ProjectName)</a>
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ProjectDeadline)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ProjectStatus)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Organization.OrganizationName)
             </td>
             <td>
                     @if (item.ProjectStatus.ToString() == "Pending")

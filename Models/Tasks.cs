@@ -7,6 +7,9 @@ public enum TaskStatus
     [Display(Name = "Pending")]
     Pending,
 
+    [Display(Name = "Assigned")]
+    Assigned,
+
     [Display(Name = "In Progress")]
     InProgress,
 

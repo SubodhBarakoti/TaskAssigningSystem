@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TSAIdentity.Data;
 using TSAIdentity.Models;
+using TSAIdentity.Services;
 using TSAIdentity.ViewModels;
 
 namespace TSAIdentity.Controllers
@@ -201,5 +202,57 @@ namespace TSAIdentity.Controllers
         {
           return (_context.Projects?.Any(e => e.ProjectId == id)).GetValueOrDefault();
         }
+
+
+
+
+
+
+
+        public async Task<IActionResult> UseAlgorithm(Guid? id)
+        {
+            var project = await _context.Projects.FindAsync(id);
+            if (project == null)
+            {
+                return NotFound();
+            }
+
+            var tasks = _context.Tasks.Where(t => t.ProjectId == project.ProjectId && !t.isassigned).ToList();
+            var employees = _context.Employees.Where(e => e.OrganizationId == project.OrganizationId && !e.IsBusy && e.IsActive).ToList();
+
+            if (tasks == null || employees == null)
+            {
+                return NotFound();
+            }
+
+            Bipartite g = new Bipartite(employees, tasks, _context);
+
+            foreach(var match in g.matching)
+            {
+                var EmpId=match.Key.Id;
+                var TskId=match.Value.Id;
+
+                var emp = await _context.Employees.FindAsync(EmpId);
+                var tsk = await _context.Tasks.FindAsync(TskId);
+
+                if (emp == null && tsk==null)
+                {
+                    return NotFound();
+                }
+                emp.IsBusy = true;
+                _context.Update(emp);
+
+                tsk.isassigned = true;
+                tsk.AssignedEmployeeId = emp.EmployeeId;
+                tsk.TaskStatus= Models.TaskStatus.Assigned;
+
+                _context.Update(tsk);
+
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Details", "Projects", new { id = project.ProjectId });
+        }
+
     }
 }

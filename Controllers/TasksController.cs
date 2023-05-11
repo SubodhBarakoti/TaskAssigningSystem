@@ -55,6 +55,7 @@ namespace TSAIdentity.Controllers
             var project = await _context.Projects.FindAsync(id);    
             ViewData["OrganizationId"] = project.OrganizationId;
             ViewData["ProjectId"] = id;
+            TempData["projectId"] = id;
             ViewData["SkillId"] = new SelectList(_context.Skills.Where(e=>e.OrganizationId==project.OrganizationId), "SkillId", "SkillName");
             return View();
         }
@@ -66,7 +67,11 @@ namespace TSAIdentity.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("TaskId,TaskName,TaskDescription,SkillId,ProjectId,OrganizationId")] Tasks tasks)
         {
-            bool taskExists = await _context.Tasks.AnyAsync(t => t.TaskName == tasks.TaskName);
+            var userEmail = HttpContext.User.Identity?.Name;
+            var organization = await _context.Organizations
+                          .Where(o => o.OrganizationEmail == userEmail)
+                          .FirstOrDefaultAsync();
+            bool taskExists = await _context.Tasks.AnyAsync(t => t.TaskName == tasks.TaskName && t.OrganizationId == organization.OrganizationId && t.ProjectId==tasks.ProjectId);
 
             if (taskExists)
             {
@@ -116,7 +121,11 @@ namespace TSAIdentity.Controllers
 
             if (ModelState.IsValid)
             {
-                bool taskExists = await _context.Tasks.AnyAsync(t => t.TaskName == tasks.TaskName && t.TaskId != id);
+                var userEmail = HttpContext.User.Identity?.Name;
+                var organization = await _context.Organizations
+                              .Where(o => o.OrganizationEmail == userEmail)
+                              .FirstOrDefaultAsync();
+                bool taskExists = await _context.Tasks.AnyAsync(t => t.TaskName == tasks.TaskName && t.TaskId != id && t.OrganizationId==organization.OrganizationId && t.ProjectId == tasks.ProjectId);
 
                 if (taskExists)
                 {
@@ -141,7 +150,7 @@ namespace TSAIdentity.Controllers
                 }
                 return RedirectToAction("Details", "Projects", new { id = tasks.ProjectId });
             }
-            ViewData["SkillId"] = new SelectList(_context.Skills.Where(e => e.OrganizationId == tasks.OrganizationId), "SkillId", "SkillName", tasks.SkillId);
+            ViewData["SkillId"] = new SelectList(_context.Skills.Where(s => s.OrganizationId == tasks.OrganizationId), "SkillId", "SkillName", tasks.SkillId);
             return View(tasks);
         }
 
