@@ -455,7 +455,14 @@ namespace TSAIdentity.Controllers
             {
                 return NotFound();
             }
-
+            var task = await _context.Tasks.FirstOrDefaultAsync(t => t.AssignedEmployeeId == employee.EmployeeId && t.TaskStatus==Models.TaskStatus.Assigned);
+            if (task != null)
+            {
+                task.TaskStatus = Models.TaskStatus.Pending;
+                task.isassigned = false;
+                task.AssignedEmployeeId = null;
+                _context.Update(task);
+            }
             employee.IsActive = !employee.IsActive;
             employee.IsBusy = false;
             _context.Update(employee);
