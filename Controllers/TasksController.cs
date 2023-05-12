@@ -216,7 +216,7 @@ namespace TSAIdentity.Controllers
             var organization = await _context.Organizations
                           .Where(o => o.OrganizationEmail == userEmail)
                           .FirstOrDefaultAsync();
-            ViewData["EmployeeId"] = new SelectList(_context.Employees.Where(e => e.OrganizationId == organization.OrganizationId), "EmployeeId", "EmployeeName");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees.Where(e => e.OrganizationId == organization.OrganizationId && !e.IsBusy), "EmployeeId", "EmployeeName");
             return View(viewModel);
         }
 
@@ -235,6 +235,7 @@ namespace TSAIdentity.Controllers
 
                 task.AssignedEmployeeId = viewModel.SelectedEmployeeId;
                 task.isassigned = true;
+                task.TaskStatus= Models.TaskStatus.Assigned;
                 _context.Update(task);
                 
 
@@ -257,5 +258,30 @@ namespace TSAIdentity.Controllers
             return View(viewModel);
         }
 
+
+        public async Task<IActionResult> DeassignTask(Guid id)
+        {
+            var task = await _context.Tasks.FindAsync(id);
+            if (task == null)
+            {
+                return NotFound();
+            }
+            var employee = await _context.Employees.FindAsync(task.AssignedEmployeeId);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            task.AssignedEmployeeId = null;
+            task.isassigned = false;
+            task.TaskStatus = Models.TaskStatus.Pending;
+            _context.Update(task);
+
+            employee.IsBusy = false;
+            _context.Update(employee);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Details", "Projects", new { id = task.ProjectId });
+        }
     }
 }

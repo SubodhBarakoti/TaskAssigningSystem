@@ -225,12 +225,12 @@ namespace TSAIdentity.Controllers
                 return NotFound();
             }
 
-            Bipartite g = new Bipartite(employees, tasks, _context);
+            BGraph g = new BGraph(employees, tasks, _context);
 
-            foreach(var match in g.matching)
+            foreach(var match in g.matchings)
             {
-                var EmpId=match.Key.Id;
-                var TskId=match.Value.Id;
+                var TskId=match.Key;
+                var EmpId = match.Value;
 
                 var emp = await _context.Employees.FindAsync(EmpId);
                 var tsk = await _context.Tasks.FindAsync(TskId);

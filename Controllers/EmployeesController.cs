@@ -457,7 +457,7 @@ namespace TSAIdentity.Controllers
             }
 
             employee.IsActive = !employee.IsActive;
-
+            employee.IsBusy = false;
             _context.Update(employee);
             await _context.SaveChangesAsync();
 
