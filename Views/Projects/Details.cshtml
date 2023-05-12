@@ -96,7 +96,10 @@
                     @Html.DisplayFor(modelItem => item.Skill.SkillName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.AssignedEmployee.EmployeeName)
+                    <a asp-controller="Employees" asp-action="Details" asp-route-id="@item.AssignedEmployeeId">
+                        @Html.DisplayFor(modelItem => item.AssignedEmployee.EmployeeName)
+                    </a>
+                    
                 </td>
                 <td>
                     @if (!item.isassigned)
@@ -104,6 +107,10 @@
                         <a asp-controller="Tasks" asp-action="Edit" asp-route-id="@item.TaskId">Edit</a>@: |
                         <a asp-controller="Tasks" asp-action="Delete" asp-route-id="@item.TaskId">Delete</a> @: |
                         <a asp-controller="Tasks" asp-action="AssignTask" asp-route-id="@item.TaskId">Assign</a> @: |
+                    }
+                    @if(item.isassigned && item.TaskStatus==TSAIdentity.Models.TaskStatus.Assigned)
+                    {
+                        <a asp-controller="Tasks" asp-action="DeassignTask" asp-route-id="@item.TaskId">Deassign</a> @: |
                     }
                     <a asp-controller="Tasks" asp-action="Details" asp-route-id="@item.TaskId">Details</a>
                     
