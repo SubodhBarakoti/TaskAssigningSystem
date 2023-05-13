@@ -31,12 +31,26 @@
             </div>
             <div class="form-group">
                 <label asp-for="EmployeePassword" class="control-label"></label>
-                <input asp-for="EmployeePassword" class="form-control" />
+                <div class="input-group">
+                    <input asp-for="EmployeePassword" type="password" class="form-control" id="passwordInput" />
+                    <div class="input-group-append">
+                        <span class="input-group-text" style="height:40px;">
+                            <i id="eyeIcon" class="fa fa-eye-slash"></i>
+                        </span>
+                    </div>
+                </div>
                 <span asp-validation-for="EmployeePassword" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ConfirmPassword" class="control-label"></label>
-                <input asp-for="ConfirmPassword" class="form-control" />
+                <div class="input-group">
+                    <input asp-for="ConfirmPassword" class="form-control" type="password" id="confirmPasswordInput" />
+                    <div class="input-group-append">
+                        <span class="input-group-text" style="height:40px;">
+                            <i id="confirmEyeIcon" class="fa fa-eye-slash"></i>
+                        </span>
+                    </div>
+                </div>
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
 
@@ -92,4 +106,32 @@
         });
     </script>
 
+    <script>
+        // Function to toggle password visibility
+        function togglePasswordVisibility(inputId, eyeIconId) {
+            const passwordInput = document.getElementById(inputId);
+            const eyeIcon = document.getElementById(eyeIconId);
+
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.classList.remove("fa-eye-slash");
+                eyeIcon.classList.add("fa-eye");
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.classList.remove("fa-eye");
+                eyeIcon.classList.add("fa-eye-slash");
+            }
+        }
+
+        // Event listeners to toggle password visibility on eye icon click
+        const passwordEyeIcon = document.getElementById("eyeIcon");
+        passwordEyeIcon.addEventListener("click", function () {
+            togglePasswordVisibility("passwordInput", "eyeIcon");
+        });
+
+        const confirmPasswordEyeIcon = document.getElementById("confirmEyeIcon");
+        confirmPasswordEyeIcon.addEventListener("click", function () {
+            togglePasswordVisibility("confirmPasswordInput", "confirmEyeIcon");
+        });
+    </script>
 }

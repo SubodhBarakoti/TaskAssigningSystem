@@ -87,7 +87,7 @@ namespace TSAIdentity.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("EmployeeId,EmployeeName,EmployeeContact,EmployeeEmail,EmployeePassword,ConfirmPassword,DesignationId,OrganizationId, SkillIds,IsActive")] Employee employee)
         {
-
+            ViewData["OrganizationId"] = employee.OrganizationId;
             var organizationName = await _context.Organizations.Where(o => o.OrganizationId == employee.OrganizationId).Select(o=>o.OrganizationName).FirstOrDefaultAsync();
             ViewData["OrganizationName"] = organizationName.ToLower();
             ViewData["DesignationId"] = new SelectList(_context.Designations.Where(d => d.OrganizationId == employee.OrganizationId), "DesignationId", "DesignationName", employee.DesignationId);
@@ -122,7 +122,15 @@ namespace TSAIdentity.Controllers
                 };
 
                 var result = await _userManager.CreateAsync(user, employee.EmployeePassword);
-
+                if (result.Succeeded)
+                {
+                    var roleExists = await _roleManager.RoleExistsAsync("Employee");
+                    if (!roleExists)
+                    {
+                        await _roleManager.CreateAsync(new IdentityRole("Employee"));
+                    }
+                    await _userManager.AddToRoleAsync(user, "Employee");
+                }
                 if (!result.Succeeded)
                 {
                     foreach (var error in result.Errors)

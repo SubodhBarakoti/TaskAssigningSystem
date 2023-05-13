@@ -216,7 +216,7 @@ namespace TSAIdentity.Controllers
             var organization = await _context.Organizations
                           .Where(o => o.OrganizationEmail == userEmail)
                           .FirstOrDefaultAsync();
-            ViewData["EmployeeId"] = new SelectList(_context.Employees.Where(e => e.OrganizationId == organization.OrganizationId && !e.IsBusy), "EmployeeId", "EmployeeName");
+            ViewData["EmployeeId"] = new SelectList(_context.Employees.Where(e => e.OrganizationId == organization.OrganizationId && !e.IsBusy && _context.EmployeeSkills.Any(es => es.EmployeeId == e.EmployeeId && es.SkillId == task.SkillId)), "EmployeeId", "EmployeeName");
             return View(viewModel);
         }
 

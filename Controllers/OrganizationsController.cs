@@ -32,9 +32,9 @@ namespace TSAIdentity.Controllers
         // GET: Organizations
         //public async Task<IActionResult> Index()
         //{
-        //      return _context.Organizations != null ? 
-        //                  View(await _context.Organizations.ToListAsync()) :
-        //                  Problem("Entity set 'ApplicationDbContext.Organizations'  is null.");
+        //    return _context.Organizations != null ?
+        //                View(await _context.Organizations.ToListAsync()) :
+        //                Problem("Entity set 'ApplicationDbContext.Organizations'  is null.");
         //}
 
         [Authorize(Roles ="Admin")]
