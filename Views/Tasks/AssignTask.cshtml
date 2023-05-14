@@ -13,7 +13,7 @@
 
             <div class="form-group">
                 <label asp-for="SelectedEmployeeId" class="control-label"></label>
-                <select asp-for="SelectedEmployeeId" class="form-control" asp-items="ViewBag.EmployeeId"></select>
+                <select asp-for="SelectedEmployeeId" class="form-control" asp-items="ViewBag.EmployeeId"><option value="">None</option></select>
             </div>
 
             <button type="submit" class="btn btn-primary">Assign Task</button>

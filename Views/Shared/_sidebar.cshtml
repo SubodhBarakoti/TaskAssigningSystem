@@ -1,0 +1,53 @@
+﻿
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+
+    <div class="sidebar sidebar-minimized">
+        <div class="sidebar-toggle">
+            <a class="btn btn-link">
+                <i class="fas fa-bars fa-lg"></i>
+            </a>
+        </div>
+        <ul class="nav flex-column">
+            @if (User.IsInRole("Admin"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" asp-action="Index" asp-controller="Designations"><i class="fas fa-briefcase fa-lg"></i> <span>Designation</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-action="Index" asp-controller="Skills"><i class="fas fa-code fa-lg"></i> <span>Skills</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-action="Index" asp-controller="Employees"><i class="fas fa-users fa-lg"></i> <span>Employees</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" asp-action="Index" asp-controller="Projects"><i class="fas fa-project-diagram fa-lg"></i> <span>Projects</span></a>
+                </li>
+            }
+        </ul>
+    </div>
+}
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+    $(document).ready(function () {
+        // Toggle sidebar width
+        $(".sidebar-toggle").click(function () {
+            $(".sidebar").toggleClass("sidebar-minimized");
+        });
+
+        $(document).on("click", function (event) {
+            var sidebar = $(".sidebar");
+            var target = $(event.target);
+
+            if (!target.closest(sidebar).length && !target.closest(".sidebar-toggle").length) {
+                sidebar.addClass("sidebar-minimized");
+            }
+        });
+    });
+</script>

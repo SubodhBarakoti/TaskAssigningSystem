@@ -24,26 +24,58 @@ body {
     position: relative;
 }
 
-    .container .signupbtn {
-        position: absolute;
-        top: 85%;
-        left: 50%;
-        width: 25vw;
-        transform: translate(-50%, -50%);
-        background-color: rgba(228,41,0,0.70);
-        color: white;
-        font-size: 16px;
-        padding: 15px 30px;
-        border: none;
-        cursor: pointer;
-        border-radius: 20px;
-        text-align: center;
-    }
+.container .signupbtn {
+    position: absolute;
+    top: 85%;
+    left: 50%;
+    width: 25vw;
+    transform: translate(-50%, -50%);
+    background-color: rgba(228,41,0,0.70);
+    color: white;
+    font-size: 16px;
+    padding: 15px 30px;
+    border: none;
+    cursor: pointer;
+    border-radius: 20px;
+    text-align: center;
+}
 
-    .container img {
-        max-height: 81vh;
-    }
+.container img {
+    max-height: 81vh;
+}
 
-    .container .signupbtn:hover {
-        background-color: rgb(228,41,0);
-    }
+.container .signupbtn:hover {
+    background-color: rgb(228,41,0);
+}
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 60px;
+    left: 0;
+    height: 100%;
+    width: 175px;
+    background-color: rgba(248, 249, 250, 0.9);
+    transition: width 0.3s;
+    z-index: 9999;
+}
+
+.sidebar .nav-link {
+    color: #333;
+}
+
+.sidebar .nav-link:hover {
+    color: #007bff;
+}
+
+.sidebar .nav-link i {
+    margin-right: 10px;
+}
+
+/* Sidebar Minimized */
+.sidebar-minimized {
+    width: 50px;
+}
+
+.sidebar-minimized .nav-link span {
+    display: none;
+}
