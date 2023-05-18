@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using System.Diagnostics;
 using TSAIdentity.Data;
 using TSAIdentity.Models;
@@ -30,8 +32,47 @@ namespace TSAIdentity.Controllers
             }
             return View();
         }
-        public IActionResult DashBoard()
+        public async Task<IActionResult> DashBoardAsync()
         {
+            string userEmail = HttpContext.User.Identity.Name;
+
+            if (userEmail == null || _context.Organizations == null)
+            {
+                return NotFound();
+            }
+            if (User.IsInRole("Admin"))
+            {
+                var organization = await _context.Organizations
+                .FirstOrDefaultAsync(o => o.OrganizationEmail == userEmail);
+                if (organization == null)
+                {
+                    return NotFound();
+                }
+                var OrganizationId = organization.OrganizationId;
+
+                ViewData["Designation_Count"] = _context.Designations.Count(d => d.OrganizationId == OrganizationId);
+                ViewData["Skill_Count"] = _context.Skills.Count(s => s.OrganizationId == OrganizationId);
+                ViewData["Active_Employees"] = _context.Employees.Count(e => e.OrganizationId == OrganizationId && e.IsActive);
+                ViewData["Busy_Employees"] = _context.Employees.Count(e => e.OrganizationId == OrganizationId && e.IsActive && e.IsBusy);
+                ViewData["Available_Employees"] = _context.Employees.Count(e => e.OrganizationId == OrganizationId && e.IsActive && !e.IsBusy);
+                ViewData["Total_Project"] = _context.Projects.Count(p => p.OrganizationId == OrganizationId);
+                ViewData["Pending_Project"] = _context.Projects.Count(p => p.OrganizationId == OrganizationId && p.ProjectStatus == Models.ProjectStatus.Pending);
+                ViewData["Ongoing_Project"] = _context.Projects.Count(p => p.OrganizationId == OrganizationId && p.ProjectStatus == Models.ProjectStatus.InProgress);
+                ViewData["Completed_Project"] = _context.Projects.Count(p => p.OrganizationId == OrganizationId && p.ProjectStatus == Models.ProjectStatus.Completed);
+            }   
+            else if (User.IsInRole("Employee"))
+            {
+                var employee = await _context.Employees
+                .FirstOrDefaultAsync(e => e.EmployeeEmail == userEmail);
+                if (employee == null)
+                {
+                    return NotFound();
+                }
+                ViewData["TotalAssigned"]= _context.Tasks.Count(t=>t.AssignedEmployeeId== employee.EmployeeId);
+                ViewData["Completed"] = _context.Tasks.Count(t => t.AssignedEmployeeId == employee.EmployeeId && t.TaskStatus==Models.TaskStatus.Completed);
+                ViewData["InProgress"] = _context.Tasks.Count(t => t.AssignedEmployeeId == employee.EmployeeId && (t.TaskStatus == Models.TaskStatus.Assigned|| t.TaskStatus==Models.TaskStatus.InProgress ) );
+                ViewData["Assigned"] = await _context.Tasks.AnyAsync(t => t.AssignedEmployeeId == employee.EmployeeId && t.TaskStatus == Models.TaskStatus.Assigned);
+            }
             return View();
         }
 

@@ -1,6 +1,74 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-<h1></h1>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+<div class="row">
+    <div class="card-group">
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="card border-info mb-3" style="max-width: 18rem;">
+                <div class="card-header"><i class="fas fa-briefcase fa-lg"></i> <span>Designation</span></div>
+                <div class="card-body text-info">
+                    <span class="card-title link-dark">Count: </span><span class="card-text">@ViewData["Designation_count"]</span><br />
+
+                </div>
+                <div class="card-footer">
+                    <a class="link-danger" asp-action="Index" asp-controller="Designations">More >></a>
+                </div>
+            </div>
+
+            <div class="card border-info mb-3" style="max-width: 18rem;">
+                <div class="card-header"><i class="fas fa-code fa-lg"></i> <span>Skills</span></div>
+                <div class="card-body text-info">
+                    <span class="card-title link-dark">Count: </span><span class="card-text">@ViewData["Skill_Count"]</span><br />
+                </div>
+                <div class="card-footer">
+                    <a class="link-danger" asp-action="Index" asp-controller="Skills">More >></a>
+                </div>
+            </div>
+
+            <div class="card border-info mb-3" style="max-width: 18rem;">
+                <div class="card-header"><i class="fas fa-users fa-lg"></i> <span>Employees</span></div>
+                <div class="card-body text-info">
+                    <span class="card-title link-dark ">Active Employees: </span><span class="card-text">@ViewData["Active_Employees"]</span><br />
+                    <span class="card-title link-dark ">Busy Employees: </span><span class="card-text">@ViewData["Busy_Employees"]</span><br />
+                    <span class="card-title link-dark ">Available Employees: </span><span class="card-text">@ViewData["Available_Employees"]</span><br />
+                </div>
+                <div class="card-footer">
+                    <a class="link-danger" asp-action="Index" asp-controller="Employees">More >></a>
+                </div>
+            </div>
+
+            <div class="card border-info mb-3" style="max-width: 18rem;">
+                <div class="card-header"><i class="fas fa-project-diagram fa-lg"></i> <span>Projects</span></div>
+                <div class="card-body text-info">
+                    <span class="card-title link-dark ">Total Projects: </span><span class="card-text">@ViewData["Total_Project"]</span><br />
+                    <span class="card-title link-dark ">Pending: </span><span class="card-text">@ViewData["Pending_Project"]</span><br />
+                    <span class="card-title link-dark ">Ongoing: </span><span class="card-text">@ViewData["Ongoing_Project"]</span><br />
+                    <span class="card-title link-dark ">Completed: </span><span class="card-text">@ViewData["Completed_Project"]</span><br />
+                </div>
+                <div class="card-footer">
+                    <a class="link-danger" asp-action="Index" asp-controller="Projects">More >></a>
+                </div>
+            </div>
+        }
+        else if (User.IsInRole("Employee"))
+        {
+            <div class="card border-info mb-3" style="max-width: 18rem;">
+                <div class="card-header"><i class="fas fa-briefcase fa-lg"></i> <span>Tasks</span></div>
+                <div class="card-body text-info">
+                    <span class="card-title link-dark">Total Assigned Task: </span><span class="card-text">@ViewData["TotalAssigned"]</span><br />
+                    <span class="card-title link-dark">Completed Task: </span><span class="card-text">@ViewData["Completed"]</span><br />
+                    <span class="card-title link-dark">InProgress Task: </span><span class="card-text">@ViewData["InProgress"]</span><br />
+                    @if ((bool)ViewData["Assigned"])
+                    {
+                        <span class="text-danger">A new task has been assigned</span>
+                    }
+                </div>
+                <div class="card-footer">
+                    <a class="link-danger" asp-action="AssignedTasks" asp-controller="Tasks">More >></a>
+                </div>
+            </div>
+        }
+    </div>
+</div>

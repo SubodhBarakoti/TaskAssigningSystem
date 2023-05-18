@@ -5,7 +5,6 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
-
     <div class="sidebar sidebar-minimized">
         <div class="sidebar-toggle">
             <a class="btn btn-link">
@@ -13,6 +12,9 @@
             </a>
         </div>
         <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" asp-action="Dashboard" asp-controller="Home"><i class="fas fa-home fa-lg"></i><span>Dashboard</span></a>
+            </li>
             @if (User.IsInRole("Admin"))
             {
                 <li class="nav-item">
@@ -26,6 +28,12 @@
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" asp-action="Index" asp-controller="Projects"><i class="fas fa-project-diagram fa-lg"></i> <span>Projects</span></a>
+                </li>
+            }
+            else if (User.IsInRole("Employee"))
+            {
+                <li class="nav-item">
+                    <a class="nav-link" asp-action="AssignedTasks" asp-controller="Tasks"><i class="fas fa-clipboard-list fa-lg"></i><span>Tasks</span></a>
                 </li>
             }
         </ul>

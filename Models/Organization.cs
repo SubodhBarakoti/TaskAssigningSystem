@@ -21,7 +21,7 @@ public class Organization
     [Required]
     [StringLength(20, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
     [DataType(DataType.Password)]
-    [Display(Name = "Organization Password")]
+    [Display(Name = "Password")]
     [RegularExpression(@"^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[^\da-zA-Z]).{6,}$",
         ErrorMessage = "The password must contain at least one digit, one lowercase character, one uppercase character, and one non-alphanumeric character.")]
     public string OrganizationPassword { get; set; }

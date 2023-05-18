@@ -20,11 +20,7 @@ namespace TSAIdentity.ViewModels
         [StringLength(10, ErrorMessage = "Contact should be of 10 characters.")]
         [DataType(DataType.PhoneNumber)]
         public string EmployeeContact { get; set; }
-
-        [DisplayName("Designation")]
-        public Guid DesignationId { get; set; }
-        public Designation? Designation { get; set; }
-
+    
         // Navigation property for organization
         public Guid OrganizationId { get; set; }
         public Organization? Organization { get; set; }

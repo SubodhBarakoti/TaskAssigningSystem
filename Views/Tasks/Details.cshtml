@@ -1,13 +1,9 @@
 ﻿@model TSAIdentity.Models.Tasks
 
-@{
-    ViewData["Title"] = "Details";
-}
 
-<h1>Details</h1>
 
 <div>
-    <h4>Tasks</h4>
+    <h4>Tasks Details</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -61,7 +57,7 @@
     </dl>
 </div>
 <div>
-    @if (!Model.isassigned)
+    @if (!Model.isassigned )
     {
         <a asp-action="Edit" asp-route-id="@Model?.TaskId">Edit</a>@: |
     }

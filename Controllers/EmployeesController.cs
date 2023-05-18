@@ -43,6 +43,7 @@ namespace TSAIdentity.Controllers
         }
 
         // GET: Employees/Details/5
+        [Route("Profile")]
         public async Task<IActionResult> Details(Guid? id)
         {
             if (id == null || _context.Employees == null)
@@ -63,6 +64,19 @@ namespace TSAIdentity.Controllers
             }
 
             return View(employee);
+        }
+
+        [Authorize(Roles = "Employee")]
+        public IActionResult Profile()
+        {
+            var userEmail = HttpContext.User.Identity?.Name;
+            if (userEmail == null)
+            {
+                return NotFound();
+            }
+            var EmployeeId = _context.Employees.Where(e => e.EmployeeEmail.Equals(userEmail)).Select(e => e.EmployeeId).FirstOrDefault();
+
+            return RedirectToAction("Details", "Employees", new { id = EmployeeId });
         }
         [Authorize(Roles = "Admin")]
         // GET: Employees/Create
@@ -199,14 +213,12 @@ namespace TSAIdentity.Controllers
             {
                 return NotFound();
             }
-            ViewData["DesignationId"] = new SelectList(_context.Designations.Where(d => d.OrganizationId == employee.OrganizationId), "DesignationId", "DesignationName", employee.DesignationId);
             ViewData["SkillId"] = new MultiSelectList(_context.Skills.Where(d => d.OrganizationId == employee.OrganizationId), "SkillId", "SkillName", employee.EmployeeSkills.Select(es => es.SkillId));
             var model = new EmployeeEditViewModel
             {
                 EmployeeId = employee.EmployeeId,
                 EmployeeName = employee.EmployeeName,
                 EmployeeContact = employee.EmployeeContact,
-                DesignationId = employee.DesignationId,
                 OrganizationId = employee.OrganizationId,
                 SkillIds = employee.EmployeeSkills.Select(es => es.SkillId).ToList()
             };
@@ -214,13 +226,12 @@ namespace TSAIdentity.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("EmployeeId,EmployeeName,EmployeeContact,DesignationId,OrganizationId,SkillIds")] EmployeeEditViewModel employee)
+        public async Task<IActionResult> Edit(Guid id, [Bind("EmployeeId,EmployeeName,EmployeeContact,OrganizationId,SkillIds")] EmployeeEditViewModel employee)
         {
             if (id != employee.EmployeeId)
             {
                 return NotFound();
             }
-            ViewData["DesignationId"] = new SelectList(_context.Designations.Where(d => d.OrganizationId == employee.OrganizationId), "DesignationId", "DesignationName", employee.DesignationId);
             ViewData["SkillId"] = new MultiSelectList(_context.Skills.Where(s => s.OrganizationId == employee.OrganizationId), "SkillId", "SkillName");
 
             if (ModelState.IsValid)
@@ -264,7 +275,6 @@ namespace TSAIdentity.Controllers
                         }
                     }
                     var employeeupdate = await _context.Employees.FindAsync(employee.EmployeeId);
-                    employeeupdate.DesignationId=employee.DesignationId;
                     employeeupdate.EmployeeName=employee.EmployeeName;
                     employeeupdate.EmployeeContact = employee.EmployeeContact;
 
@@ -282,95 +292,142 @@ namespace TSAIdentity.Controllers
                         throw;
                     }
                 }
+                if (User.IsInRole("Employee"))
+                {
+                    return RedirectToAction("Profile", "Employees");
+                }
                 return RedirectToAction(nameof(Index));
             }
 
             return View(employee);
         }
-        // POST: Employees/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Edit(Guid id, [Bind("EmployeeId,EmployeeName,EmployeeContact,EmployeeEmail,EmployeePassword,ConfirmPassword,DesignationId,OrganizationId,IsActive,SkillIds")] Employee employee)
-        //{
-        //    if (id != employee.EmployeeId)
-        //    {
-        //        return NotFound();
-        //    }
-        //    var organizationName = await _context.Organizations.Where(o => o.OrganizationId == employee.OrganizationId).Select(o => o.OrganizationName).FirstOrDefaultAsync();
-        //    ViewData["OrganizationName"] = organizationName.ToLower();
-        //    ViewData["DesignationId"] = new SelectList(_context.Designations.Where(d => d.OrganizationId == employee.OrganizationId), "DesignationId", "DesignationName", employee.DesignationId);
-        //    ViewData["SkillId"] = new MultiSelectList(_context.Skills.Where(s => s.OrganizationId == employee.OrganizationId), "SkillId", "SkillName");
+        public async Task<IActionResult> Promote(Guid? id)
+        {
+            if (id == null || _context.Employees == null)
+            {
+                return NotFound();
+            }
+            var employee = await _context.Employees
+                .Include(e => e.Designation)
+                .Include(e => e.Organization)
+                .FirstOrDefaultAsync(m => m.EmployeeId == id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            ViewData["DesignationId"] = new SelectList(_context.Designations.Where(d => d.OrganizationId == employee.OrganizationId), "DesignationId", "DesignationName", employee.DesignationId);
+            var promotion = new PromoteViewModel
+            {
+                EmployeeId = employee.EmployeeId,
+                EmployeeName= employee.EmployeeName,
+                DesignationId = employee.DesignationId
+            };
+            return View(promotion);
+        }
 
-        //    if (ModelState.IsValid)
-        //    {
-        //        bool rerror = false;
-        //        if (await _context.Employees.AnyAsync(e => e.EmployeeEmail == employee.EmployeeEmail && e.EmployeeId !=employee.EmployeeId))
-        //        {
-        //            ModelState.AddModelError("EmployeeEmail", "This email address is already registered.");
-        //            rerror = true;
-        //        }
-        //        if (await _context.Employees.AnyAsync(e => e.EmployeeContact == employee.EmployeeContact && e.EmployeeId != employee.EmployeeId))
-        //        {
-        //            ModelState.AddModelError("EmployeeContact", "This employee contact is already registered.");
-        //            rerror = true;
-        //        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Promote(Guid id, [Bind("EmployeeId,EmployeeName,DesignationId")] PromoteViewModel promote)
+        {
+            if (id != promote.EmployeeId)
+            {
+                return NotFound();
+            }
+            if (ModelState.IsValid)
+            {
+                var employee = await _context.Employees.FindAsync(promote.EmployeeId);
+                employee.DesignationId = promote.DesignationId;
+                _context.Update(employee);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("Details", "Employees", new {id=employee.EmployeeId});
+            }
+            return View(promote);
+        }
 
-        //        if (rerror)
-        //        {
-        //            return View(employee);
-        //        }
-        //        try
-        //        {
-        //            // First, retrieve the existing EmployeeSkills for the employee being edited
-        //            var existingEmployeeSkills = await _context.EmployeeSkills.Where(es => es.EmployeeId == employee.EmployeeId).ToListAsync();
+            // POST: Employees/Edit/5
+            // To protect from overposting attacks, enable the specific properties you want to bind to.
+            // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+            //[HttpPost]
+            //[ValidateAntiForgeryToken]
+            //public async Task<IActionResult> Edit(Guid id, [Bind("EmployeeId,EmployeeName,EmployeeContact,EmployeeEmail,EmployeePassword,ConfirmPassword,DesignationId,OrganizationId,IsActive,SkillIds")] Employee employee)
+            //{
+            //    if (id != employee.EmployeeId)
+            //    {
+            //        return NotFound();
+            //    }
+            //    var organizationName = await _context.Organizations.Where(o => o.OrganizationId == employee.OrganizationId).Select(o => o.OrganizationName).FirstOrDefaultAsync();
+            //    ViewData["OrganizationName"] = organizationName.ToLower();
+            //    ViewData["DesignationId"] = new SelectList(_context.Designations.Where(d => d.OrganizationId == employee.OrganizationId), "DesignationId", "DesignationName", employee.DesignationId);
+            //    ViewData["SkillId"] = new MultiSelectList(_context.Skills.Where(s => s.OrganizationId == employee.OrganizationId), "SkillId", "SkillName");
 
-        //            // Then, remove any EmployeeSkills that are no longer selected
-        //            foreach (var existing in existingEmployeeSkills)
-        //            {
-        //                if (!employee.SkillIds.Contains(existing.SkillId))
-        //                {
-        //                    _context.EmployeeSkills.Remove(existing);
-        //                }
-        //            }
+            //    if (ModelState.IsValid)
+            //    {
+            //        bool rerror = false;
+            //        if (await _context.Employees.AnyAsync(e => e.EmployeeEmail == employee.EmployeeEmail && e.EmployeeId !=employee.EmployeeId))
+            //        {
+            //            ModelState.AddModelError("EmployeeEmail", "This email address is already registered.");
+            //            rerror = true;
+            //        }
+            //        if (await _context.Employees.AnyAsync(e => e.EmployeeContact == employee.EmployeeContact && e.EmployeeId != employee.EmployeeId))
+            //        {
+            //            ModelState.AddModelError("EmployeeContact", "This employee contact is already registered.");
+            //            rerror = true;
+            //        }
 
-        //            // Finally, add any new EmployeeSkills that have been selected
-        //            foreach (var skillId in employee.SkillIds)
-        //            {
-        //                if (!existingEmployeeSkills.Any(es => es.SkillId == skillId))
-        //                {
-        //                    var newEmployeeSkill = new EmployeeSkill
-        //                    {
-        //                        EmployeeId = employee.EmployeeId,
-        //                        SkillId = skillId
-        //                    };
-        //                    _context.EmployeeSkills.Add(newEmployeeSkill);
-        //                }
-        //            }
-        //            employee.IsActive = true;
-        //            _context.Update(employee);
-        //            await _context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (!EmployeeExists(employee.EmployeeId))
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction(nameof(Index));
-        //    }
+            //        if (rerror)
+            //        {
+            //            return View(employee);
+            //        }
+            //        try
+            //        {
+            //            // First, retrieve the existing EmployeeSkills for the employee being edited
+            //            var existingEmployeeSkills = await _context.EmployeeSkills.Where(es => es.EmployeeId == employee.EmployeeId).ToListAsync();
 
-        //    return View(employee);
-        //}
+            //            // Then, remove any EmployeeSkills that are no longer selected
+            //            foreach (var existing in existingEmployeeSkills)
+            //            {
+            //                if (!employee.SkillIds.Contains(existing.SkillId))
+            //                {
+            //                    _context.EmployeeSkills.Remove(existing);
+            //                }
+            //            }
 
-        // GET: Employees/Delete/5
-        public async Task<IActionResult> Delete(Guid? id)
+            //            // Finally, add any new EmployeeSkills that have been selected
+            //            foreach (var skillId in employee.SkillIds)
+            //            {
+            //                if (!existingEmployeeSkills.Any(es => es.SkillId == skillId))
+            //                {
+            //                    var newEmployeeSkill = new EmployeeSkill
+            //                    {
+            //                        EmployeeId = employee.EmployeeId,
+            //                        SkillId = skillId
+            //                    };
+            //                    _context.EmployeeSkills.Add(newEmployeeSkill);
+            //                }
+            //            }
+            //            employee.IsActive = true;
+            //            _context.Update(employee);
+            //            await _context.SaveChangesAsync();
+            //        }
+            //        catch (DbUpdateConcurrencyException)
+            //        {
+            //            if (!EmployeeExists(employee.EmployeeId))
+            //            {
+            //                return NotFound();
+            //            }
+            //            else
+            //            {
+            //                throw;
+            //            }
+            //        }
+            //        return RedirectToAction(nameof(Index));
+            //    }
+
+            //    return View(employee);
+            //}
+
+            // GET: Employees/Delete/5
+            public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null || _context.Employees == null)
             {
@@ -522,6 +579,10 @@ namespace TSAIdentity.Controllers
                     _context.Update(employee);
                     await _context.SaveChangesAsync();
 
+                    if (User.IsInRole("Employee"))
+                    {
+                        return RedirectToAction("Profile","Employees");
+                    }
                     // Password changed successfully
                     return RedirectToAction(nameof(Index));
                 }

@@ -1,13 +1,8 @@
 ﻿@model TSAIdentity.ViewModels.ProjectTaskViewModel
 
-@{
-    ViewData["Title"] = "Details";
-}
-
-<h1>Details</h1>
+<h1>Project Details</h1>
 
 <div>
-    <h4>Project</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -52,11 +47,14 @@
     <a asp-action="Index">Back to List</a>
 </div>
 <hr />
-    <a asp-action="UseAlgorithm" asp-route-id="@Model.Project.ProjectId">Use Algorithm</a>
+<a asp-action="UseAlgorithm" asp-route-id="@Model.Project.ProjectId" class="btn btn-lg text-white" style="background-color: rgba(228,41,0,0.70); ">Assign Tasks</a>
 <hr/>
-<p>
-    <a asp-controller="Tasks" asp-action="Create" asp-route-id="@Model.Project.ProjectId">Add New Task</a>
-</p>
+@if(Model.Project.ProjectStatus != TSAIdentity.Models.ProjectStatus.Completed)
+{
+    <p>
+        <a asp-controller="Tasks" asp-action="Create" asp-route-id="@Model.Project.ProjectId">Add New Task</a>
+    </p>
+}
 <table class="table">
     <thead>
         <tr>

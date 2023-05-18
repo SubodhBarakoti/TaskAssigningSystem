@@ -8,8 +8,8 @@ public enum ProjectStatus
     [Display(Name = "Pending")]
     Pending,
 
-    [Display(Name = "Ongoing")]
-    Ongoing,
+    [Display(Name = "In Progress")]
+    InProgress,
 
     [Display(Name = "Completed")]
     Completed

@@ -1,13 +1,12 @@
 ﻿@model TSAIdentity.Models.Employee
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
 
-@{
-    ViewData["Title"] = "Details";
-}
-
-<h1>Details</h1>
+<h1></h1>
 
 <div>
-    <h4>Employee</h4>
+    <h4>Profile</h4>
     <hr />
     <dl class="row">
         <dt class = "col-sm-2">
@@ -28,12 +27,12 @@
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.EmployeeEmail)
         </dd>
-        <dt class = "col-sm-2">
+        @*<dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.EmployeePassword)
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.EmployeePassword)
-        </dd>
+        </dd>*@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Designation)
         </dt>
@@ -64,7 +63,7 @@
         <dd class="col-sm-10">
             @foreach (var employeeSkill in Model.EmployeeSkills)
             {
-                <a asp-controller="Skills" asp-action="Details" asp-route-id="@employeeSkill.Skill.SkillId"><span>@employeeSkill.Skill.SkillName</span></a>
+                <span>@employeeSkill.Skill.SkillName</span>
                 if (employeeSkill != Model.EmployeeSkills.Last())
                 {
                     <span>,</span>
@@ -79,12 +78,22 @@
     @if (@Model.IsActive)
     {
         <a asp-action="Edit" asp-route-id="@Model?.EmployeeId">Edit</a> @:|
-        <a asp-action="ActivateDeactivate" asp-route-id="@Model?.EmployeeId">Deactivate</a> @: |
+        if (!User.IsInRole("Employee"))
+        {
+            <a asp-action="ActivateDeactivate" asp-route-id="@Model?.EmployeeId">Deactivate</a>@: |
+        }
         <a asp-action="ChangePassword" asp-route-id="@Model?.EmployeeId">ChangePassword</a> @: |
     }
     else
     {
-        <a asp-action="ActivateDeactivate" asp-route-id="@Model?.EmployeeId">Activate</a>  @: |
+        if (!User.IsInRole("Employee"))
+        {
+            <a asp-action="ActivateDeactivate" asp-route-id="@Model?.EmployeeId">Activate</a>@: |
+        }
     }
-    <a asp-action="Index">Back to List</a> |
+    @if (!User.IsInRole("Employee"))
+    {
+        <a asp-action="Promote" asp-route-id="@Model?.EmployeeId">Promote</a> @: |
+        <a asp-action="Index">Back to List</a> @:|
+    }
 </div>

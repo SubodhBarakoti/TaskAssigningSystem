@@ -1,0 +1,60 @@
+﻿@model IEnumerable<TSAIdentity.Models.Tasks>
+
+<h4>Assigned Tasks</h4>
+<hr />
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.TaskName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TaskDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TaskStatus)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Skill)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Project)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TaskName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TaskDescription)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TaskStatus)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Skill.SkillName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Project.ProjectName)
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.TaskId">Details</a>
+                    @if (item.TaskStatus == TSAIdentity.Models.TaskStatus.Assigned)
+                    {@:|
+                        <a asp-action="ChangeStatus" asp-route-id="@item.TaskId">Start Task</a>
+                    }
+                    else if (item.TaskStatus == TSAIdentity.Models.TaskStatus.InProgress)
+                    {
+                        @:|
+                        <a asp-action="ChangeStatus" asp-route-id="@item.TaskId">Complete Task</a>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

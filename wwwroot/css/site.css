@@ -50,7 +50,7 @@ body {
 /* Sidebar */
 .sidebar {
     position: fixed;
-    top: 60px;
+    top: 70px;
     left: 0;
     height: 100%;
     width: 175px;
@@ -78,4 +78,9 @@ body {
 
 .sidebar-minimized .nav-link span {
     display: none;
+}
+@media (max-width: 767px) {
+    html {
+        padding: 55px;
+    }
 }

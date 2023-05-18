@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Build.Evaluation;
 using Microsoft.Build.Framework;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using TSAIdentity.Data;
 using TSAIdentity.Models;
@@ -21,11 +25,11 @@ namespace TSAIdentity.Controllers
         }
 
         // GET: Tasks
-        public async Task<IActionResult> Index()
-        {
-            var applicationDbContext = _context.Tasks.Include(t => t.AssignedEmployee).Include(t => t.Organization).Include(t => t.Project).Include(t => t.Skill);
-            return View(await applicationDbContext.ToListAsync());
-        }
+        //public async Task<IActionResult> Index()
+        //{
+        //    var applicationDbContext = _context.Tasks.Include(t => t.AssignedEmployee).Include(t => t.Organization).Include(t => t.Project).Include(t => t.Skill);
+        //    return View(await applicationDbContext.ToListAsync());
+        //}
 
         // GET: Tasks/Details/5
         public async Task<IActionResult> Details(Guid? id)
@@ -283,5 +287,88 @@ namespace TSAIdentity.Controllers
 
             return RedirectToAction("Details", "Projects", new { id = task.ProjectId });
         }
+
+        [Authorize(Roles = "Employee")]
+        public async Task<IActionResult> AssignedTasksAsync()
+        {
+            // Get the current employee's ID
+            string userEmail = HttpContext.User.Identity.Name;
+
+            if (userEmail == null)
+            {
+                return NotFound();
+            }
+            var employee = await _context.Employees.FirstOrDefaultAsync(e => e.EmployeeEmail == userEmail);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            // Retrieve the tasks assigned to the employee from the database
+            var tasks = _context.Tasks
+                .Include(t => t.Project)
+                .Include(t => t.Skill)
+                .Where(t => t.AssignedEmployeeId == employee.EmployeeId)
+                .ToList();
+
+            return View(tasks);
+        }
+
+        public async Task<IActionResult> ChangeStatusAsync(Guid id)
+        {
+            var task = _context.Tasks.FirstOrDefault(t => t.TaskId == id);
+
+            if (task == null)
+            {
+                return NotFound();
+            }
+
+            if (task.TaskStatus == Models.TaskStatus.Assigned)
+            {
+                task.TaskStatus = Models.TaskStatus.InProgress;
+                _context.Update(task);
+
+                // Retrieve the associated project
+                var project = _context.Projects.FirstOrDefault(p => p.ProjectId == task.ProjectId);
+                if (project != null)
+                {
+                    project.ProjectStatus = ProjectStatus.InProgress;
+                    _context.Update(project);
+                }
+            }
+            else if (task.TaskStatus == Models.TaskStatus.InProgress)
+            {
+                task.TaskStatus = Models.TaskStatus.Completed;
+
+                var employee = await _context.Employees.FindAsync(task.AssignedEmployeeId);
+                if (employee != null)
+                {
+                    employee.IsBusy = false;
+                    _context.Update(employee);
+                }
+
+                var project = await _context.Projects.FindAsync(task.ProjectId);
+                if (project != null)
+                {
+                    bool allTasksCompleted = await _context.Tasks.Where(t => t.ProjectId == project.ProjectId &&t.TaskId != task.TaskId).AllAsync(t => t.TaskStatus == Models.TaskStatus.Completed);
+
+                    if (allTasksCompleted)
+                    {
+                        // Update project status to completed
+
+                        if (project != null)
+                        {
+                            project.ProjectStatus = ProjectStatus.Completed;
+                            _context.Update(project);
+                            await _context.SaveChangesAsync();
+                        }
+                    }
+                }
+            }
+
+            _context.SaveChanges();
+
+            return RedirectToAction("AssignedTasks");
+        }
+
     }
 }
