@@ -15,9 +15,11 @@ namespace TSAIdentity.Controllers
     public class ProjectsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IBipartateService _ibipartateService;
 
-        public ProjectsController(ApplicationDbContext context)
+        public ProjectsController(IBipartateService ibipartateService,ApplicationDbContext context)
         {
+            _ibipartateService = ibipartateService;
             _context = context;
         }
 
@@ -225,9 +227,9 @@ namespace TSAIdentity.Controllers
                 return NotFound();
             }
 
-            BGraph g = new BGraph(employees, tasks, _context);
+            var matchings=_ibipartateService.ConfigureBipartateGraph(employees, tasks, _context);
 
-            foreach(var match in g.matchings)
+            foreach(var match in matchings)
             {
                 var TskId=match.Key;
                 var EmpId = match.Value;
